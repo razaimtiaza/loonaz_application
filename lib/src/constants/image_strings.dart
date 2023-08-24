@@ -1,0 +1,9 @@
+const String tSplashTopIcon = "assets/images/splash2.png";
+const String tSplashImage = "assets/images/splash2.png";
+const String img1 = "assets/images/img1.jpg";
+const String img2 = "assets/images/img2.jpg";
+const String img3 = "assets/images/img3.jpg";
+const String img4 = "assets/images/img4.jpg";
+const String img5 = "assets/images/img5.jpg";
+const String img6 = "assets/images/img6.jpg";
+const String tSplashLogo = "assets/logo/elogo.jpg";
