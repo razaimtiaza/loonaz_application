@@ -36,7 +36,7 @@ class VideoScreen extends StatefulWidget {
 class _VideoScreenState extends State<VideoScreen> {
   late VideoPlayerController _videoController;
   late bool _isPlaying = false;
-  int _currentPageIndex = 0;
+  final int _currentPageIndex = 0;
   late PageController _pageController;
   List<PaletteGenerator?> _paletteGenerators = [];
   int _currentIndex = 0;
@@ -46,7 +46,7 @@ class _VideoScreenState extends State<VideoScreen> {
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: widget.initialIndex);
-    _initializeVideoController();
+    _initializeVideoController(widget.initialIndex);
     // Initialize _paletteGenerators with null values for each image.
     _paletteGenerators = List.generate(
       widget.videos!.length,
@@ -56,6 +56,15 @@ class _VideoScreenState extends State<VideoScreen> {
     _loadImageAndGeneratePalette(
         widget.videos![widget.initialIndex].file_thumb ?? "",
         widget.initialIndex);
+  }
+
+  void _videoListener() {
+    if (!_videoController.value.isPlaying &&
+        _videoController.value.position == _videoController.value.duration) {
+      setState(() {
+        _isPlaying = false;
+      });
+    }
   }
 
   void _loadImageAndGeneratePalette(String imageUrl, int index) async {
@@ -70,24 +79,13 @@ class _VideoScreenState extends State<VideoScreen> {
     });
   }
 
-  void _videoListener() {
-    if (!_videoController.value.isPlaying &&
-        _videoController.value.position == _videoController.value.duration) {
-      setState(() {
-        _isPlaying = false;
-      });
-    }
-  }
-
-  void _initializeVideoController() {
-    _videoController = VideoPlayerController.network(
-        widget.videos![_currentPageIndex].file_video ?? "")
-      ..initialize().then((_) {
-        setState(() {
-          _isPlaying = true; // Automatically start playing when initialized
-        });
-        _videoController.addListener(_videoListener);
-      });
+  void _initializeVideoController(int index) {
+    _videoController =
+        VideoPlayerController.network(widget.videos![index].file_video ?? "")
+          ..initialize().then((_) {
+            setState(() {});
+            _videoController.addListener(_videoListener);
+          });
   }
 
   Data _selectedItem = Data();
@@ -125,18 +123,12 @@ class _VideoScreenState extends State<VideoScreen> {
                 setState(() {
                   _currentIndex = index;
                 });
-                if (_paletteGenerators[index] == null) {
-                  _loadImageAndGeneratePalette(
-                      widget.videos![index].file_thumb ?? "", index);
-                } else {
-                  _backgroundColor =
-                      _paletteGenerators[index]!.dominantColor?.color ??
-                          Colors.black;
-                }
+                _loadImageAndGeneratePalette(
+                    widget.videos![index].file_thumb ?? "", index);
                 setState(() {
-                  _currentPageIndex = index;
                   _videoController.dispose();
-                  _initializeVideoController(); // Reinitialize video controller
+                  _initializeVideoController(
+                      index); // Update the video controller with the correct index
                   _isPlaying = false;
                 });
               },
@@ -188,33 +180,30 @@ class _VideoScreenState extends State<VideoScreen> {
                               alignment: Alignment.center,
                               children: [
                                 VideoPlayer(_videoController),
-                                if (!_isPlaying ||
-                                    _videoController.value.position !=
-                                        Duration.zero)
-                                  IconButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        if (_videoController.value.isPlaying) {
-                                          _videoController.pause();
-                                        } else {
-                                          _videoController.play();
-                                        }
-                                        _isPlaying =
-                                            _videoController.value.isPlaying;
-                                      });
-                                    },
-                                    icon: Icon(
-                                      _isPlaying ||
-                                              _videoController.value.position !=
-                                                  Duration.zero
-                                          ? (_isPlaying
-                                              ? Icons.pause
-                                              : Icons.play_arrow)
-                                          : Icons.play_arrow,
-                                      color: Colors.white,
-                                      size: 50,
-                                    ),
+                                IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      if (_videoController.value.isPlaying) {
+                                        _videoController.pause();
+                                      } else {
+                                        _videoController.play();
+                                      }
+                                      _isPlaying =
+                                          _videoController.value.isPlaying;
+                                    });
+                                  },
+                                  icon: Icon(
+                                    _isPlaying ||
+                                            _videoController.value.position !=
+                                                Duration.zero
+                                        ? (_isPlaying
+                                            ? Icons.pause
+                                            : Icons.play_arrow)
+                                        : Icons.play_arrow,
+                                    color: Colors.white,
+                                    size: 50,
                                   ),
+                                ),
                               ],
                             ),
                           ),
