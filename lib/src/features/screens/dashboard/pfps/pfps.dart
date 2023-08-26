@@ -50,8 +50,10 @@ class _MyAppState extends State<Pfps> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              pfpsDetailScreen(imageUrl: item.file_high ?? ''),
+                          builder: (context) => pfpsDetailScreen(
+                              imageDataList: snapshot.data?.data?[0] ??
+                                  [], // Pass the list of images
+                              initialIndex: index),
                         ),
                       );
                     },

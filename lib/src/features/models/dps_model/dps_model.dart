@@ -28,13 +28,19 @@ class Data {
   String? catname;
   String? url;
   String? file_high;
-  Data({
-    this.id,
-    this.title,
-    this.catname,
-    this.url,
-    this.file_high,
-  }); // Include the new property in the constructor
+  String? size;
+  String? views;
+  String? file_low;
+
+  Data(
+      {this.id,
+      this.title,
+      this.catname,
+      this.url,
+      this.file_high,
+      this.size,
+      this.views,
+      this.file_low}); // Include the new property in the constructor
 
   Data.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -42,6 +48,9 @@ class Data {
     catname = json['catname'];
     url = json['url'];
     file_high = json['file_high'];
+    size = json['size'];
+    views = json['views'];
+    file_low = json['file_low'];
     // Assign the value from JSON to the new property
   }
 }

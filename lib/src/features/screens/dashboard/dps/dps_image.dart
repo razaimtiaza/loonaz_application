@@ -4,67 +4,135 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:loonaz_application/src/features/models/dps_model/dps_model.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share/share.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_wallpaper_manager/flutter_wallpaper_manager.dart';
 
+// ignore: must_be_immutable
 class ImageDetailScreen extends StatelessWidget {
-  final String imageUrl; // The URL of the selected image
+  final List<Data> imageDataList; // List of images
+  final int initialIndex; // Index of the selected image
 
-  const ImageDetailScreen({super.key, required this.imageUrl});
+  ImageDetailScreen(
+      {super.key, required this.imageDataList, required this.initialIndex});
+  Data _selectedItem = Data();
 
   @override
   Widget build(BuildContext context) {
+    var height = MediaQuery.of(context).size.height;
+    var wid = MediaQuery.of(context).size.width;
     return Scaffold(
-      body: Container(
-        color: Colors.black,
-        child: Column(
-          children: [
-            Expanded(
-              child: Image.network(
-                imageUrl,
-                // fit: BoxFit.cover,
+      backgroundColor: Colors.black,
+      body: PageView.builder(
+          itemCount: imageDataList.length,
+          controller: PageController(initialPage: initialIndex),
+          itemBuilder: (BuildContext context, int index) {
+            var item = imageDataList[index];
+            return Center(
+              child: Container(
+                height: height * 0.8,
+                width: wid * 0.9,
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color:
+                      const Color.fromARGB(255, 47, 41, 41), // Background color
+                  borderRadius: const BorderRadius.vertical(
+                    bottom: Radius.circular(20.0),
+                    top: Radius.circular(20.0),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color.fromARGB(255, 204, 193, 193)
+                          .withOpacity(0.4),
+                      blurRadius: 6.0,
+                      spreadRadius: 4.0,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      item.title ?? "",
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(
+                      height: height * 0.03,
+                    ),
+                    Expanded(
+                      child: Image.network(
+                        item.file_high ?? "",
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    SizedBox(
+                      height: height * 0.02,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          item.size ?? "",
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        const Spacer(),
+                        Text(
+                          item.views ?? "",
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold),
+                        )
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        IconButton(
+                          icon: const Icon(
+                            Icons.share,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            // Implement the share functionality here
+                            _shareImage(context, item.file_high ?? "");
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.download,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            _selectedItem = item;
+                            _showDownloadOptions(context);
+                            // Implement the download functionality here
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.favorite,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            // Implement the favorite functionality here
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                IconButton(
-                  icon: const Icon(
-                    Icons.share,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    // Implement the share functionality here
-                    _shareImage(context, imageUrl);
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(
-                    Icons.download,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    _showDownloadOptions(context);
-                    // Implement the download functionality here
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(
-                    Icons.favorite,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    // Implement the favorite functionality here
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+            );
+          }),
     );
   }
 
@@ -97,7 +165,7 @@ class ImageDetailScreen extends StatelessWidget {
               leading: const Icon(Icons.wallpaper),
               title: const Text('Set as Wallpaper'),
               onTap: () {
-                setWallpaperhome(context, imageUrl);
+                setWallpaperhome(context, _selectedItem.file_low ?? "");
                 Navigator.pop(context);
               },
             ),
@@ -106,7 +174,7 @@ class ImageDetailScreen extends StatelessWidget {
               title: const Text('Set as Lock Screen'),
               onTap: () {
                 // Implement setting the image as lock screen
-                setWallpaperlock(context, imageUrl);
+                setWallpaperlock(context, _selectedItem.file_low ?? "");
                 Navigator.pop(context);
               },
             ),
@@ -115,7 +183,7 @@ class ImageDetailScreen extends StatelessWidget {
               title: const Text('Set as Both'),
               onTap: () {
                 // Implement setting the image as both wallpaper and lock screen
-                setWallpaper(context, imageUrl);
+                setWallpaper(context, _selectedItem.file_low ?? "");
 
                 Navigator.pop(context);
               },
@@ -132,8 +200,10 @@ class ImageDetailScreen extends StatelessWidget {
       int location = WallpaperManager
           .BOTH_SCREEN; // or location = WallpaperManager.LOCK_SCREEN;
       var file = await DefaultCacheManager().getSingleFile(url);
-      final bool result =
-          await WallpaperManager.setWallpaperFromFile(file.path, location);
+      final bool result = await WallpaperManager.setWallpaperFromFile(
+        file.path,
+        location,
+      );
       if (result) {
         // Display a Snackbar
         ScaffoldMessenger.of(context).showSnackBar(
@@ -152,6 +222,7 @@ class ImageDetailScreen extends StatelessWidget {
       String url = image;
       int location = WallpaperManager
           .HOME_SCREEN; // or location = WallpaperManager.LOCK_SCREEN;
+
       var file = await DefaultCacheManager().getSingleFile(url);
       final bool result =
           await WallpaperManager.setWallpaperFromFile(file.path, location);

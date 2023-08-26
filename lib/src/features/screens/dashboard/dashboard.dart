@@ -15,7 +15,13 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   int currentIndex = 0;
-  final screensList = [const Wallpapers(), Ringtones(), Live(), Dps(), Pfps()];
+  final screensList = <StatefulWidget>[
+    const Wallpapers(),
+    Ringtones(),
+    const Live(),
+    const Dps(),
+    const Pfps()
+  ];
   @override
   Widget build(BuildContext context) {
     // TODO: implement build

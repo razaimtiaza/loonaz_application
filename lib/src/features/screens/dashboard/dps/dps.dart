@@ -51,8 +51,10 @@ class _DpsState extends State<Dps> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              ImageDetailScreen(imageUrl: item.file_high ?? ''),
+                          builder: (context) => ImageDetailScreen(
+                              imageDataList: snapshot.data?.data?[0] ??
+                                  [], // Pass the list of images
+                              initialIndex: index),
                         ),
                       );
                     },

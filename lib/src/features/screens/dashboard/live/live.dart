@@ -51,8 +51,8 @@ class _LiveState extends State<Live> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => VideoScreen(
-                              videoUrl: item.file_video ?? '',
-                              image: item.file_thumb ?? ""),
+                              videos: snapshot.data?.data?[0] ?? [],
+                              initialIndex: index),
                         ),
                       );
                     },
