@@ -122,11 +122,25 @@ class _RingtonesState extends State<Ringtones> {
 //     },
 //   );
     return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: Column(
+        scrollDirection: Axis.vertical,
+        child: Column(
           children: List.generate(
               list.length,
-              (index) => Container(
+              (index) => GestureDetector(
+                  onTap: () {
+                    // Navigate to the detail screen when an item is tapped
+                    ringtoneController.pauseSong();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RingtoneDetailScreen(
+                          itemList: list,
+                          initialIndex: index,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Container(
                     color: Colors.black,
                     child: Padding(
                       padding: EdgeInsets.all(defaultPadding / 2 - 4),
@@ -174,8 +188,15 @@ class _RingtonesState extends State<Ringtones> {
                           GestureDetector(
                             onTap: () {
                               ringtoneController.pauseSong();
-                              Get.to(RingtoneDetailScreen(
-                                  ringtoneModelClass: list[index]));
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => RingtoneDetailScreen(
+                                    itemList: list,
+                                    initialIndex: index,
+                                  ),
+                                ),
+                              );
                             },
                             child: Column(
                               // mainAxisAlignment: MainAxisAlignment.start,
@@ -217,7 +238,7 @@ class _RingtonesState extends State<Ringtones> {
                       ),
                     ),
                   ))),
-    );
+        ));
   }
 }
 

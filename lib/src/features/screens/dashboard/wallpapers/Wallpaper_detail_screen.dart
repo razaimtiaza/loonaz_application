@@ -363,25 +363,32 @@ class WallDetailScreen extends StatefulWidget {
 }
 
 class _WallDetailScreenState extends State<WallDetailScreen> {
-  PaletteGenerator? _paletteGenerator;
-  final int _currentIndex = 0;
+  List<PaletteGenerator?> _paletteGenerators = [];
+  int _currentIndex = 0;
+  Color _backgroundColor = Colors.black;
   Data _selectedItem = Data();
-  Color _backgroundColor = Colors.black; // Initial background color
-
   @override
   void initState() {
     super.initState();
+    // Initialize _paletteGenerators with null values for each image.
+    _paletteGenerators = List.generate(
+      widget.imageDataList.length,
+      (_) => null,
+    );
+    _currentIndex = widget.initialIndex;
     _loadImageAndGeneratePalette(
-        widget.imageDataList[widget.initialIndex].file_high ?? "");
+        widget.imageDataList[widget.initialIndex].file_high ?? "",
+        widget.initialIndex);
   }
 
-  void _loadImageAndGeneratePalette(String imageUrl) async {
+  void _loadImageAndGeneratePalette(String imageUrl, int index) async {
     final paletteGenerator = await PaletteGenerator.fromImageProvider(
       NetworkImage(imageUrl),
-      size: const Size(300, 480), // Adjust the size as needed
+      size: const Size(300, 480),
     );
 
     setState(() {
+      _paletteGenerators[index] = paletteGenerator;
       _backgroundColor = paletteGenerator.dominantColor?.color ?? Colors.black;
     });
   }
@@ -395,6 +402,20 @@ class _WallDetailScreenState extends State<WallDetailScreen> {
       body: PageView.builder(
           itemCount: widget.imageDataList.length,
           controller: PageController(initialPage: widget.initialIndex),
+          onPageChanged: (index) {
+            // Update the current index and load the palette for the new image.
+            setState(() {
+              _currentIndex = index;
+            });
+            if (_paletteGenerators[index] == null) {
+              _loadImageAndGeneratePalette(
+                  widget.imageDataList[index].file_high ?? "", index);
+            } else {
+              _backgroundColor =
+                  _paletteGenerators[index]!.dominantColor?.color ??
+                      Colors.black;
+            }
+          },
           itemBuilder: (BuildContext context, int index) {
             var item = widget.imageDataList[index];
             return Center(
@@ -635,10 +656,10 @@ class _WallDetailScreenState extends State<WallDetailScreen> {
       if (result) {
         // Display a Snackbar
         Get.snackbar(
-          'Successful',
-          'Image set successfully',
+          'Successfull',
+          'Set Successfully',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: const Color.fromARGB(255, 8, 191, 20),
+          backgroundColor: Color.fromARGB(255, 7, 231, 86),
           colorText: Colors.white,
         );
       }
@@ -651,17 +672,16 @@ class _WallDetailScreenState extends State<WallDetailScreen> {
       String url = image;
       int location = WallpaperManager
           .HOME_SCREEN; // or location = WallpaperManager.LOCK_SCREEN;
-
       var file = await DefaultCacheManager().getSingleFile(url);
       final bool result =
           await WallpaperManager.setWallpaperFromFile(file.path, location);
       if (result) {
         // Display a Snackbar
         Get.snackbar(
-          'Successful',
-          'Image set successfully',
+          'Successfull',
+          'Set Successfully',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: const Color.fromARGB(255, 8, 191, 20),
+          backgroundColor: Color.fromARGB(255, 7, 231, 86),
           colorText: Colors.white,
         );
       }
@@ -679,11 +699,12 @@ class _WallDetailScreenState extends State<WallDetailScreen> {
       final bool result =
           await WallpaperManager.setWallpaperFromFile(file.path, location);
       if (result) {
+        // Display a Snackbar
         Get.snackbar(
-          'Successful',
-          'Image set successfully',
+          'Successfull',
+          'Set Successfully',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: const Color.fromARGB(255, 8, 191, 20),
+          backgroundColor: Color.fromARGB(255, 7, 231, 86),
           colorText: Colors.white,
         );
       }

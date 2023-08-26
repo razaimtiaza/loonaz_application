@@ -3,6 +3,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:palette_generator/palette_generator.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:share/share.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter/services.dart';
@@ -25,7 +30,7 @@ class VideoScreen extends StatefulWidget {
   });
 
   @override
-  _VideoScreenState createState() => _VideoScreenState();
+  State<VideoScreen> createState() => _VideoScreenState();
 }
 
 class _VideoScreenState extends State<VideoScreen> {
@@ -33,11 +38,36 @@ class _VideoScreenState extends State<VideoScreen> {
   late bool _isPlaying = false;
   int _currentPageIndex = 0;
   late PageController _pageController;
+  List<PaletteGenerator?> _paletteGenerators = [];
+  int _currentIndex = 0;
+  Color _backgroundColor = Colors.black;
+
   @override
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: widget.initialIndex);
     _initializeVideoController();
+    // Initialize _paletteGenerators with null values for each image.
+    _paletteGenerators = List.generate(
+      widget.videos!.length,
+      (_) => null,
+    );
+    _currentIndex = widget.initialIndex;
+    _loadImageAndGeneratePalette(
+        widget.videos![widget.initialIndex].file_thumb ?? "",
+        widget.initialIndex);
+  }
+
+  void _loadImageAndGeneratePalette(String imageUrl, int index) async {
+    final paletteGenerator = await PaletteGenerator.fromImageProvider(
+      NetworkImage(imageUrl),
+      size: const Size(300, 480),
+    );
+
+    setState(() {
+      _paletteGenerators[index] = paletteGenerator;
+      _backgroundColor = paletteGenerator.dominantColor?.color ?? Colors.black;
+    });
   }
 
   void _videoListener() {
@@ -53,7 +83,9 @@ class _VideoScreenState extends State<VideoScreen> {
     _videoController = VideoPlayerController.network(
         widget.videos![_currentPageIndex].file_video ?? "")
       ..initialize().then((_) {
-        setState(() {});
+        setState(() {
+          _isPlaying = true; // Automatically start playing when initialized
+        });
         _videoController.addListener(_videoListener);
       });
   }
@@ -65,7 +97,7 @@ class _VideoScreenState extends State<VideoScreen> {
     var height = MediaQuery.of(context).size.height;
     var wid = MediaQuery.of(context).size.width;
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: _backgroundColor,
       body: Center(
         child: Container(
           height: height * 0.8,
@@ -90,6 +122,17 @@ class _VideoScreenState extends State<VideoScreen> {
               itemCount: widget.videos!.length,
               controller: PageController(initialPage: widget.initialIndex),
               onPageChanged: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+                if (_paletteGenerators[index] == null) {
+                  _loadImageAndGeneratePalette(
+                      widget.videos![index].file_thumb ?? "", index);
+                } else {
+                  _backgroundColor =
+                      _paletteGenerators[index]!.dominantColor?.color ??
+                          Colors.black;
+                }
                 setState(() {
                   _currentPageIndex = index;
                   _videoController.dispose();
@@ -145,30 +188,33 @@ class _VideoScreenState extends State<VideoScreen> {
                               alignment: Alignment.center,
                               children: [
                                 VideoPlayer(_videoController),
-                                IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      if (_videoController.value.isPlaying) {
-                                        _videoController.pause();
-                                      } else {
-                                        _videoController.play();
-                                      }
-                                      _isPlaying =
-                                          _videoController.value.isPlaying;
-                                    });
-                                  },
-                                  icon: Icon(
-                                    _isPlaying ||
-                                            _videoController.value.position !=
-                                                Duration.zero
-                                        ? (_isPlaying
-                                            ? Icons.pause
-                                            : Icons.play_arrow)
-                                        : Icons.play_arrow,
-                                    color: Colors.white,
-                                    size: 50,
+                                if (!_isPlaying ||
+                                    _videoController.value.position !=
+                                        Duration.zero)
+                                  IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        if (_videoController.value.isPlaying) {
+                                          _videoController.pause();
+                                        } else {
+                                          _videoController.play();
+                                        }
+                                        _isPlaying =
+                                            _videoController.value.isPlaying;
+                                      });
+                                    },
+                                    icon: Icon(
+                                      _isPlaying ||
+                                              _videoController.value.position !=
+                                                  Duration.zero
+                                          ? (_isPlaying
+                                              ? Icons.pause
+                                              : Icons.play_arrow)
+                                          : Icons.play_arrow,
+                                      color: Colors.white,
+                                      size: 50,
+                                    ),
                                   ),
-                                ),
                               ],
                             ),
                           ),
@@ -295,10 +341,72 @@ class _VideoScreenState extends State<VideoScreen> {
                 Navigator.pop(context);
               },
             ),
+            ListTile(
+              leading: const Icon(
+                Icons.save_alt_outlined,
+              ),
+              title: const Text('Set to Media Folder'),
+              onTap: () async {
+                // Implement setting the image as both wallpaper and lock screen
+                await _saveVideoToMediaFolder(_selectedItem.file_video ?? '');
+                // ignore: use_build_context_synchronously
+                Navigator.pop(context);
+              },
+            ),
           ],
         );
       },
     );
+  }
+
+  Future<void> _saveVideoToMediaFolder(String videoUrl) async {
+    final PermissionStatus status = await Permission.storage.request();
+
+    if (status.isGranted) {
+      final response = await http.get(Uri.parse(videoUrl));
+
+      if (response.statusCode == 200) {
+        final appDocDir = await getApplicationDocumentsDirectory();
+        final videoPath = '${appDocDir.path}/downloaded_video.mp4';
+        final File videoFile = File(videoPath);
+        await videoFile.writeAsBytes(response.bodyBytes);
+
+        final result = await ImageGallerySaver.saveFile(videoPath);
+        if (result['isSuccess']) {
+          Get.snackbar(
+            'Video Saved',
+            'Video saved to Media Folder',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
+          );
+        } else {
+          Get.snackbar(
+            'Error',
+            'Failed to save video',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+        }
+      } else {
+        Get.snackbar(
+          'Error',
+          'Failed to download video. Status code: ${response.statusCode}',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } else {
+      Get.snackbar(
+        'Permission Denied',
+        'Storage permission is required to save the video.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
   }
 
   Future<void> setWallpaper(BuildContext context, String image) async {
@@ -311,11 +419,12 @@ class _VideoScreenState extends State<VideoScreen> {
           await WallpaperManager.setWallpaperFromFile(file.path, location);
       if (result) {
         // Display a Snackbar
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Wallpaper set successfully!'),
-            duration: Duration(seconds: 1), // Adjust the duration as needed
-          ),
+        Get.snackbar(
+          'Successfull',
+          'Set Successfully',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color.fromARGB(255, 7, 231, 86),
+          colorText: Colors.white,
         );
       }
       print(result);
@@ -332,11 +441,12 @@ class _VideoScreenState extends State<VideoScreen> {
           await WallpaperManager.setWallpaperFromFile(file.path, location);
       if (result) {
         // Display a Snackbar
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Wallpaper set successfully!'),
-            duration: Duration(seconds: 1), // Adjust the duration as needed
-          ),
+        Get.snackbar(
+          'Successfull',
+          'Set Successfully',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color.fromARGB(255, 7, 231, 86),
+          colorText: Colors.white,
         );
       }
 
@@ -354,11 +464,12 @@ class _VideoScreenState extends State<VideoScreen> {
           await WallpaperManager.setWallpaperFromFile(file.path, location);
       if (result) {
         // Display a Snackbar
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Wallpaper set successfully!'),
-            duration: Duration(seconds: 1), // Adjust the duration as needed
-          ),
+        Get.snackbar(
+          'Successfull',
+          'Set Successfully',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color.fromARGB(255, 7, 231, 86),
+          colorText: Colors.white,
         );
       }
       print(result);
