@@ -5,6 +5,8 @@ import 'ringtones/ringtones.dart';
 import 'wallpapers/wallpapers.dart';
 import 'dps/dps.dart';
 import 'live/live.dart';
+import 'package:stylish_bottom_bar/stylish_bottom_bar.dart';
+import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -17,7 +19,7 @@ class _DashboardState extends State<Dashboard> {
   int currentIndex = 0;
   final screensList = <StatefulWidget>[
     const Wallpapers(),
-    Ringtones(),
+    const Ringtones(),
     const Live(),
     const Dps(),
     const Pfps()
@@ -44,9 +46,9 @@ class _DashboardState extends State<Dashboard> {
           type: BottomNavigationBarType.fixed,
           unselectedItemColor:
               Colors.white, // jo click nai ha on ka color orange ho ga
-          selectedItemColor:
-              Colors.lightBlue, // jo select ha on ka color blue ho ga
-          backgroundColor: Colors.blueGrey,
+          selectedItemColor: const Color.fromARGB(
+              255, 170, 199, 213), // jo select ha on ka color blue ho ga
+          backgroundColor: const Color.fromARGB(255, 6, 33, 47),
           //  iconSize: 40,
           //   selectedFontSize: 20,
           //   unselectedFontSize: 10,

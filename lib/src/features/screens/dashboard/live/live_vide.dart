@@ -22,11 +22,13 @@ import '../../../models/live_wallaper/live_model.dart';
 class VideoScreen extends StatefulWidget {
   final List<Data>? videos; // Change the type to List<Data>?
   final int initialIndex; // Index of the selected image
+  final String heroTag;
 
   const VideoScreen({
     super.key,
     this.videos,
     required this.initialIndex,
+    required this.heroTag,
   });
 
   @override
@@ -97,25 +99,25 @@ class _VideoScreenState extends State<VideoScreen> {
     return Scaffold(
       backgroundColor: _backgroundColor,
       body: Center(
-        child: Container(
+        child: SizedBox(
           height: height * 0.8,
           width: wid * 0.8,
-          padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 47, 41, 41), // Background color
-            borderRadius: const BorderRadius.vertical(
-              bottom: Radius.circular(20.0),
-              top: Radius.circular(20.0),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color:
-                    const Color.fromARGB(255, 204, 193, 193).withOpacity(0.4),
-                blurRadius: 6.0,
-                spreadRadius: 4.0,
-              ),
-            ],
-          ),
+          // padding: const EdgeInsets.all(16.0),
+          // decoration: BoxDecoration(
+          //   color: const Color.fromARGB(255, 47, 41, 41), // Background color
+          //   borderRadius: const BorderRadius.vertical(
+          //     bottom: Radius.circular(20.0),
+          //     top: Radius.circular(20.0),
+          //   ),
+          //   boxShadow: [
+          //     BoxShadow(
+          //       color:
+          //           const Color.fromARGB(255, 204, 193, 193).withOpacity(0.4),
+          //       blurRadius: 6.0,
+          //       spreadRadius: 4.0,
+          //     ),
+          //   ],
+          // ),
           child: PageView.builder(
               itemCount: widget.videos!.length,
               controller: PageController(initialPage: widget.initialIndex),
@@ -139,26 +141,26 @@ class _VideoScreenState extends State<VideoScreen> {
                       child: CircularProgressIndicator()); // Loading indicator
                 }
                 return Center(
-                  child: Container(
+                  child: SizedBox(
                     height: height * 0.8,
                     width: wid * 0.8,
-                    padding: const EdgeInsets.all(16.0),
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(
-                          255, 47, 41, 41), // Background color
-                      borderRadius: const BorderRadius.vertical(
-                        bottom: Radius.circular(20.0),
-                        top: Radius.circular(20.0),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color.fromARGB(255, 204, 193, 193)
-                              .withOpacity(0.4),
-                          blurRadius: 6.0,
-                          spreadRadius: 4.0,
-                        ),
-                      ],
-                    ),
+                    // padding: const EdgeInsets.all(16.0),
+                    // decoration: BoxDecoration(
+                    //   color: const Color.fromARGB(
+                    //       255, 47, 41, 41), // Background color
+                    //   borderRadius: const BorderRadius.vertical(
+                    //     bottom: Radius.circular(20.0),
+                    //     top: Radius.circular(20.0),
+                    //   ),
+                    //   boxShadow: [
+                    //     BoxShadow(
+                    //       color: const Color.fromARGB(255, 204, 193, 193)
+                    //           .withOpacity(0.4),
+                    //       blurRadius: 6.0,
+                    //       spreadRadius: 4.0,
+                    //     ),
+                    //   ],
+                    // ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -174,37 +176,40 @@ class _VideoScreenState extends State<VideoScreen> {
                           height: 15,
                         ),
                         Expanded(
-                          child: AspectRatio(
-                            aspectRatio: _videoController.value.aspectRatio,
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                VideoPlayer(_videoController),
-                                IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      if (_videoController.value.isPlaying) {
-                                        _videoController.pause();
-                                      } else {
-                                        _videoController.play();
-                                      }
-                                      _isPlaying =
-                                          _videoController.value.isPlaying;
-                                    });
-                                  },
-                                  icon: Icon(
-                                    _isPlaying ||
-                                            _videoController.value.position !=
-                                                Duration.zero
-                                        ? (_isPlaying
-                                            ? Icons.pause
-                                            : Icons.play_arrow)
-                                        : Icons.play_arrow,
-                                    color: Colors.white,
-                                    size: 50,
+                          child: Hero(
+                            tag: widget.heroTag,
+                            child: AspectRatio(
+                              aspectRatio: _videoController.value.aspectRatio,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  VideoPlayer(_videoController),
+                                  IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        if (_videoController.value.isPlaying) {
+                                          _videoController.pause();
+                                        } else {
+                                          _videoController.play();
+                                        }
+                                        _isPlaying =
+                                            _videoController.value.isPlaying;
+                                      });
+                                    },
+                                    icon: Icon(
+                                      _isPlaying ||
+                                              _videoController.value.position !=
+                                                  Duration.zero
+                                          ? (_isPlaying
+                                              ? Icons.pause
+                                              : Icons.play_arrow)
+                                          : Icons.play_arrow,
+                                      color: Colors.white,
+                                      size: 50,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),

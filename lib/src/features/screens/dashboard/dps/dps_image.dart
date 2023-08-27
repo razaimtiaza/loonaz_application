@@ -21,11 +21,13 @@ import 'package:flutter_wallpaper_manager/flutter_wallpaper_manager.dart';
 class ImageDetailScreen extends StatefulWidget {
   final List<Data> imageDataList; // List of images
   final int initialIndex; // Index of the selected image
+  final String heroTag;
 
   const ImageDetailScreen({
     super.key,
     required this.imageDataList,
     required this.initialIndex,
+    required this.heroTag,
   });
 
   @override
@@ -89,26 +91,26 @@ class _ImageDetailScreenState extends State<ImageDetailScreen> {
           itemBuilder: (BuildContext context, int index) {
             var item = widget.imageDataList[index];
             return Center(
-              child: Container(
+              child: SizedBox(
                 height: height * 0.8,
                 width: wid * 0.9,
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color:
-                      const Color.fromARGB(255, 47, 41, 41), // Background color
-                  borderRadius: const BorderRadius.vertical(
-                    bottom: Radius.circular(20.0),
-                    top: Radius.circular(20.0),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color.fromARGB(255, 204, 193, 193)
-                          .withOpacity(0.4),
-                      blurRadius: 6.0,
-                      spreadRadius: 4.0,
-                    ),
-                  ],
-                ),
+                // padding: const EdgeInsets.all(16.0),
+                // decoration: BoxDecoration(
+                //   color:
+                //       const Color.fromARGB(255, 47, 41, 41), // Background color
+                //   borderRadius: const BorderRadius.vertical(
+                //     bottom: Radius.circular(20.0),
+                //     top: Radius.circular(20.0),
+                //   ),
+                //   boxShadow: [
+                //     BoxShadow(
+                //       color: const Color.fromARGB(255, 204, 193, 193)
+                //           .withOpacity(0.4),
+                //       blurRadius: 6.0,
+                //       spreadRadius: 4.0,
+                //     ),
+                //   ],
+                // ),
                 child: Column(
                   children: [
                     Text(
@@ -122,9 +124,16 @@ class _ImageDetailScreenState extends State<ImageDetailScreen> {
                       height: height * 0.03,
                     ),
                     Expanded(
-                      child: Image.network(
-                        item.file_high ?? "",
-                        fit: BoxFit.cover,
+                      child: Hero(
+                        tag: widget.heroTag,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(
+                              20.0), // Rounded corners for the image
+                          child: Image.network(
+                            item.file_high ?? "",
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
                     ),
                     SizedBox(
@@ -328,7 +337,7 @@ class _ImageDetailScreenState extends State<ImageDetailScreen> {
           'Successfull',
           'Set Successfully',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Color.fromARGB(255, 7, 231, 86),
+          backgroundColor: const Color.fromARGB(255, 7, 231, 86),
           colorText: Colors.white,
         );
       }
@@ -350,7 +359,7 @@ class _ImageDetailScreenState extends State<ImageDetailScreen> {
           'Successfull',
           'Set Successfully',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Color.fromARGB(255, 7, 231, 86),
+          backgroundColor: const Color.fromARGB(255, 7, 231, 86),
           colorText: Colors.white,
         );
       }
@@ -373,7 +382,7 @@ class _ImageDetailScreenState extends State<ImageDetailScreen> {
           'Successfull',
           'Set Successfully',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Color.fromARGB(255, 7, 231, 86),
+          backgroundColor: const Color.fromARGB(255, 7, 231, 86),
           colorText: Colors.white,
         );
       }

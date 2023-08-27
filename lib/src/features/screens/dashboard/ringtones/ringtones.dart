@@ -12,6 +12,8 @@ import 'package:loonaz_application/src/features/screens/dashboard/ringtones/ring
 import '../../../../constants/sizes.dart';
 
 class Ringtones extends StatefulWidget {
+  const Ringtones({super.key});
+
   @override
   State<Ringtones> createState() => _RingtonesState();
 }
@@ -34,27 +36,27 @@ class _RingtonesState extends State<Ringtones> {
         title: Row(
           children: [
             Expanded(
-              child: Container(
+              child: SizedBox(
                 width: double.infinity,
                 height: 40.0,
                 child: TextField(
                   decoration: InputDecoration(
                     hintText: 'Search...',
-                    contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 8.0),
                     // Adjust vertical alignment
                     alignLabelWithHint: true,
-                    hintStyle: TextStyle(color: Colors.white),
-                    prefixIcon: Icon(Icons.search, color: Colors.white),
+                    hintStyle: const TextStyle(color: Colors.white),
+                    prefixIcon: const Icon(Icons.search, color: Colors.white),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(20.0),
-                      borderSide: BorderSide(color: Colors.grey),
+                      borderSide: const BorderSide(color: Colors.grey),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(20.0),
-                      borderSide: BorderSide(color: Colors.blue),
+                      borderSide: const BorderSide(color: Colors.blue),
                     ),
                     filled: true,
-                    fillColor: Colors.blueGrey,
+                    fillColor: const Color.fromARGB(255, 6, 33, 47),
                   ),
                 ),
               ),
@@ -87,7 +89,7 @@ class _RingtonesState extends State<Ringtones> {
   }
 
   Future<void> _playMusic1(String audioUrl) async {
-    print("data===1" + audioUrl.toString());
+    print("data===1$audioUrl");
     try {
       if (audioUrl == currentPlayingUrl && isPlaying) {
         print("data===2");
@@ -143,7 +145,7 @@ class _RingtonesState extends State<Ringtones> {
                   child: Container(
                     color: Colors.black,
                     child: Padding(
-                      padding: EdgeInsets.all(defaultPadding / 2 - 4),
+                      padding: const EdgeInsets.all(defaultPadding / 2 - 4),
                       child: Row(
                         children: [
                           GestureDetector(
@@ -170,7 +172,7 @@ class _RingtonesState extends State<Ringtones> {
                                         Radius.circular(defaultPadding / 2)),
                                   ),
                                 ),
-                                Container(
+                                SizedBox(
                                   width: 90,
                                   height: 90,
                                   child: Icon(
@@ -182,7 +184,7 @@ class _RingtonesState extends State<Ringtones> {
                               ],
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: tDefaultSize / 2,
                           ),
                           GestureDetector(
@@ -211,22 +213,22 @@ class _RingtonesState extends State<Ringtones> {
                                       fontSize: 12.0,
                                       color: Colors.white),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: tDefaultSize / 4,
                                 ),
                                 Text(
                                   list[index].catname,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       fontWeight: FontWeight.normal,
                                       fontSize: 14.0,
                                       color: Colors.white),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: tDefaultSize / 4,
                                 ),
                                 Text(
                                   list[index].duration.toString(),
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       fontWeight: FontWeight.normal,
                                       fontSize: 10.0,
                                       color: Colors.grey),

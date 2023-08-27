@@ -17,91 +17,60 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-class RingtoneDetailScreen extends StatelessWidget {
+class RingtoneDetailScreen extends StatefulWidget {
   final List<RingtoneModelClass> itemList;
   final int initialIndex;
-
-  const RingtoneDetailScreen(
-      {super.key, required this.itemList, required this.initialIndex});
+  const RingtoneDetailScreen({
+    super.key,
+    required this.itemList,
+    required this.initialIndex,
+  });
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.purple,
-        elevation: 0,
-        title: Row(
-          children: [
-            Icon(
-              Icons.person_2_rounded,
-              color: Colors.white.withOpacity(0.7),
-              size: 30.0,
-            ),
-            const SizedBox(
-              width: 5.0,
-            ),
-            const Text("byt119718")
-          ],
-        ),
-      ),
-      body: PageView.builder(
-        itemCount: itemList.length,
-        itemBuilder: (context, index) {
-          return RingtoneDetailPage(ringtoneModel: itemList[index]);
-        },
-      ),
-    );
-  }
+  State<RingtoneDetailScreen> createState() => _nameState();
 }
 
-// ignore: must_be_immutable
-class RingtoneDetailPage extends StatelessWidget {
-  final RingtoneModelClass ringtoneModel;
+// ignore: camel_case_types
+class _nameState extends State<RingtoneDetailScreen> {
+  late final RingtoneModelClass ringtoneModel;
   final AudioPlayer audioPlayer = AudioPlayer();
   String currentPlayingUrl = "";
   bool isPlaying = false;
 
-  RingtoneDetailPage({super.key, required this.ringtoneModel});
+  @override
+  void initState() {
+    super.initState();
+    ringtoneModel = widget.itemList[widget.initialIndex];
+  }
+
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
-      body: Stack(
-        children: [
-          Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.lightGreen,
-                  Colors.blueGrey
-                ], // Replace with your desired colors
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-              borderRadius:
-                  BorderRadius.all(Radius.circular(defaultPadding / 2)),
-            ),
-            child: Column(children: [
-              const SizedBox(
-                height: tDefaultSize * 3,
-              ),
-              Text(
-                ringtoneModel.title,
-                style: const TextStyle(
-                    fontWeight: FontWeight.normal,
-                    fontSize: 12.0,
-                    color: Colors.white),
+        appBar: AppBar(
+          backgroundColor: Colors.purple,
+          elevation: 0,
+          title: Row(
+            children: [
+              Icon(
+                Icons.person_2_rounded,
+                color: Colors.white.withOpacity(0.7),
+                size: 30.0,
               ),
               const SizedBox(
-                height: tDefaultSize / 4,
+                width: 5.0,
               ),
-              Stack(
+              const Text("byt119718")
+            ],
+          ),
+        ),
+        body: PageView.builder(
+            itemCount: widget.itemList.length,
+            itemBuilder: (context, index) {
+              return Stack(
                 children: [
                   Container(
-                    width: 240,
-                    height: 240,
+                    width: double.infinity,
+                    height: double.infinity,
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
@@ -114,83 +83,138 @@ class RingtoneDetailPage extends StatelessWidget {
                       borderRadius:
                           BorderRadius.all(Radius.circular(defaultPadding / 2)),
                     ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      toggleAudioPlayback(ringtoneModel.audioUrl);
-                      playMusic(ringtoneModel.audioUrl);
-                    },
-                    child: SizedBox(
-                      width: 240,
-                      height: 240,
-                      child: Icon(
-                        isPlaying
-                            ? Icons.pause_circle_filled
-                            : Icons.play_circle_fill_outlined,
-                        color: Colors.white.withOpacity(0.7),
-                        size: 84.0,
+                    child: Column(children: [
+                      const SizedBox(
+                        height: tDefaultSize * 3,
                       ),
-                    ),
+                      Text(
+                        ringtoneModel.title,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.normal,
+                            fontSize: 12.0,
+                            color: Colors.white),
+                      ),
+                      const SizedBox(
+                        height: tDefaultSize / 4,
+                      ),
+                      Stack(
+                        children: [
+                          Container(
+                            width: 240,
+                            height: 240,
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.lightGreen,
+                                  Colors.blueGrey
+                                ], // Replace with your desired colors
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ),
+                              borderRadius: BorderRadius.all(
+                                  Radius.circular(defaultPadding / 2)),
+                            ),
+                          ),
+                          // GestureDetector(
+                          //   onTap: () {
+                          //     toggleAudioPlayback(ringtoneModel.audioUrl);
+                          //     playMusic(ringtoneModel.audioUrl);
+                          //   },
+                          //   child: SizedBox(
+                          //     width: 240,
+                          //     height: 240,
+                          //     child: Icon(
+                          //       isPlaying
+                          //           ? Icons.pause_circle_filled
+                          //           : Icons.play_circle_fill_outlined,
+                          //       color: Colors.white.withOpacity(0.7),
+                          //       size: 84.0,
+                          //     ),
+                          //   ),
+                          // )
+                          Padding(
+                            padding: const EdgeInsets.all(88.0),
+                            child: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  if (isPlaying) {
+                                    // Stop the ringtone here
+                                    // You should implement the logic to stop the ringtone
+                                    _playMusic1(ringtoneModel.audioUrl);
+                                  } else {
+                                    // Start the ringtone here
+                                    // You should implement the logic to start the ringtone
+                                    _playMusic1(ringtoneModel.audioUrl);
+                                  }
+                                  isPlaying = !isPlaying; // Toggle the state
+                                });
+                              },
+                              icon: Icon(
+                                isPlaying ? Icons.pause : Icons.play_arrow,
+                                color: Colors.white,
+                                size: 50,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: tDefaultSize / 4,
+                      ),
+                      Text(
+                        "${ringtoneModel.duration} sec",
+                        style: const TextStyle(
+                            fontWeight: FontWeight.normal,
+                            fontSize: 12.0,
+                            color: Colors.white),
+                      ),
+                      const SizedBox(
+                        height: tDefaultSize * 2,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              String linkToShare = ringtoneModel
+                                  .audioUrl; // Replace with your link
+                              //  print("data==");
+                              shareLink(linkToShare);
+                            },
+                            icon: const Icon(Icons.share,
+                                size: 25, color: Colors.white),
+                          ),
+                          const SizedBox(
+                            width: 20.0,
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              showModalBottomSheet(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return BottomPopUpContent(
+                                      ringtoneModel: ringtoneModel);
+                                },
+                              );
+                            },
+                            icon: const Icon(Icons.arrow_downward,
+                                size: 25, color: Colors.white),
+                          ),
+                          const SizedBox(
+                            width: 20.0,
+                          ),
+                          IconButton(
+                            onPressed: () {},
+                            icon: const Icon(Icons.favorite_border,
+                                size: 25, color: Colors.white),
+                          ),
+                        ],
+                      )
+                    ]),
                   )
                 ],
-              ),
-              const SizedBox(
-                height: tDefaultSize / 4,
-              ),
-              Text(
-                "${ringtoneModel.duration} sec",
-                style: const TextStyle(
-                    fontWeight: FontWeight.normal,
-                    fontSize: 12.0,
-                    color: Colors.white),
-              ),
-              const SizedBox(
-                height: tDefaultSize * 2,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      String linkToShare =
-                          ringtoneModel.audioUrl; // Replace with your link
-                      //  print("data==");
-                      shareLink(linkToShare);
-                    },
-                    icon:
-                        const Icon(Icons.share, size: 25, color: Colors.white),
-                  ),
-                  const SizedBox(
-                    width: 20.0,
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      showModalBottomSheet(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return BottomPopUpContent(
-                              ringtoneModel: ringtoneModel);
-                        },
-                      );
-                    },
-                    icon: const Icon(Icons.arrow_downward,
-                        size: 25, color: Colors.white),
-                  ),
-                  const SizedBox(
-                    width: 20.0,
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.favorite_border,
-                        size: 25, color: Colors.white),
-                  ),
-                ],
-              )
-            ]),
-          )
-        ],
-      ),
-    );
+              );
+            }));
   }
 
   void shareLink(String link) {
@@ -201,20 +225,32 @@ class RingtoneDetailPage extends StatelessWidget {
     }
   }
 
-  Future<void> playMusic(String audioUrl) async {
-    // print("data===1"+audioUrl.toString()+"  current playing "+currentPlayingUrl.value.toString()+"isplaying"+isPlaying.value.toString());
+  Future<void> _playMusic1(String audioUrl) async {
+    print("data===1$audioUrl");
     try {
       if (audioUrl == currentPlayingUrl && isPlaying) {
         print("data===2");
         await audioPlayer.pause();
-        isPlaying = false;
+        setState(() {
+          print("data===3");
+          isPlaying = false;
+        });
       } else {
         print("data===4");
         await audioPlayer.play(UrlSource(audioUrl));
-        currentPlayingUrl = audioUrl;
-        isPlaying = true;
+        setState(() {
+          print("data===5");
+          currentPlayingUrl = audioUrl;
+          isPlaying = true;
+        });
       }
     } catch (e) {}
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    audioPlayer.dispose();
   }
 
   Future<void> toggleAudioPlayback(String audioUrl) async {

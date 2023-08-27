@@ -20,6 +20,41 @@ class _MyAppState extends State<Pfps> {
     final height = MediaQuery.sizeOf(context).height * 1;
     final width = MediaQuery.sizeOf(context).width * 1;
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        title: Row(
+          children: [
+            Expanded(
+              child: SizedBox(
+                width: double.infinity,
+                height: 40.0,
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search...',
+                    contentPadding: const EdgeInsets.symmetric(vertical: 8.0),
+                    // Adjust vertical alignment
+                    alignLabelWithHint: true,
+                    hintStyle: const TextStyle(color: Colors.white),
+                    prefixIcon: const Icon(Icons.search, color: Colors.white),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                      borderSide: const BorderSide(color: Colors.grey),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                      borderSide: const BorderSide(color: Colors.blue),
+                    ),
+                    filled: true,
+                    fillColor: const Color.fromARGB(255, 6, 33, 47),
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
       body: Container(
         color: Colors.black,
         child: FutureBuilder<pfpsWallpaper>(
@@ -53,11 +88,13 @@ class _MyAppState extends State<Pfps> {
                           builder: (context) => pfpsDetailScreen(
                               imageDataList: snapshot.data?.data?[0] ??
                                   [], // Pass the list of images
-                              initialIndex: index),
+                              initialIndex: index,
+                              heroTag: 'image_$index'),
                         ),
                       );
                     },
-                    child: Container(
+                    child: Hero(
+                      tag: 'image_$index',
                       child: Stack(
                         children: [
                           SizedBox(
